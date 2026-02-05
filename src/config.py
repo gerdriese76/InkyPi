@@ -3,6 +3,7 @@ import json
 import logging
 from dotenv import load_dotenv
 from model import PlaylistManager, RefreshInfo
+from user_manager import UserManager
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ class Config:
 
     # File paths relative to the script's directory
     config_file = os.path.join(BASE_DIR, "config", "device.json")
+    config_dir = os.path.join(BASE_DIR, "config")
 
     # File path for storing the current image being displayed
     current_image_file = os.path.join(BASE_DIR, "static", "images", "current_image.png")
@@ -24,6 +26,7 @@ class Config:
         self.plugins_list = self.read_plugins_list()
         self.playlist_manager = self.load_playlist_manager()
         self.refresh_info = self.load_refresh_info()
+        self.user_manager = UserManager(self.config_dir)
 
     def read_config(self):
         """Reads the device config JSON file and returns it as a dictionary."""
@@ -135,3 +138,7 @@ class Config:
     def get_refresh_info(self):
         """Returns the refresh information."""
         return self.refresh_info
+
+    def get_user_manager(self):
+        """Returns the user manager."""
+        return self.user_manager

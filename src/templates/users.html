@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}">
+    <script src="{{ url_for('static', filename='scripts/dark_mode.js') }}"></script>
+    <script>
+        (function() {
+            const theme = localStorage.getItem('inkypi-theme') || 
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <div class="frame">
+        {% if has_users %}
+        <!-- Back Button -->
+        <button onclick="window.location.href='{{ url_for('main.main_page') }}'" class="back-button">← Back</button>
+        {% endif %}
+        
+        <div class="app-header">
+            <div class="header-content">
+                <div class="title-container">
+                    <h1 class="app-title">User Management</h1>
+                </div>
+                {% if has_users %}
+                <div>
+                     <a href="{{ url_for('auth.logout') }}" class="header-button" style="background-color: #E53935; color: #fff; text-decoration: none;">Logout</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="separator"></div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-messages" style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+              {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="settings-container">
+            <h3>Add User</h3>
+            <form action="{{ url_for('auth.add_user') }}" method="post" class="settings-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" id="username" name="username" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" id="password" name="password" required class="form-input">
+                </div>
+                <div class="buttons-container" style="justify-content: flex-start;">
+                    <button type="submit" class="action-button">Add User</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="settings-container">
+            <h3>Existing Users</h3>
+            {% if users %}
+            <ul class="user-list" style="list-style: none; padding: 0;">
+                {% for user in users %}
+                <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 5px; border-radius: 4px;">
+                    <span>{{ user.username }}</span>
+                    {% if user.username != session.get('user_id') %}
+                    <form action="{{ url_for('auth.delete_user', username=user.username) }}" method="post" style="display: inline;">
+                        <button type="submit" class="action-button" style="background-color: #E53935; padding: 5px 10px; font-size: 0.8em;">Delete</button>
+                    </form>
+                    {% else %}
+                    <span style="font-size: 0.8em; opacity: 0.7;">(You)</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No users found. Please add a user.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
