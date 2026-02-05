@@ -1,6 +1,8 @@
 {
     "name": "InkyPi Development",
     "display_type": "mock",
+    "runlocal": false,
+    "port": 8080,
     "resolution": [
         800,
         480

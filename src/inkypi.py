@@ -102,6 +102,16 @@ if __name__ == '__main__':
         # Run the Flask app
         app.secret_key = str(random.randint(100000,999999))
 
+        # Determine host and port from config
+        run_local = device_config.get_config("runlocal", False)
+        host = "127.0.0.1" if run_local else "0.0.0.0"
+        
+        # Override port from config if present
+        config_port = device_config.get_config("port", None)
+        final_port = config_port if config_port is not None else PORT
+        
+        logger.info(f"Starting server on {host}:{final_port}")
+
         # Get local IP address for display (only in dev mode when running on non-Pi)
         if DEV_MODE:
             import socket
@@ -110,10 +120,10 @@ if __name__ == '__main__':
                 s.connect(("8.8.8.8", 80))
                 local_ip = s.getsockname()[0]
                 s.close()
-                logger.info(f"Serving on http://{local_ip}:{PORT}")
+                logger.info(f"Serving on http://{local_ip}:{final_port}")
             except:
                 pass  # Ignore if we can't get the IP
 
-        serve(app, host="0.0.0.0", port=PORT, threads=1)
+        serve(app, host=host, port=final_port, threads=1)
     finally:
         refresh_task.stop()
