@@ -19,6 +19,7 @@ import json
 import logging
 import threading
 import argparse
+import secrets
 from utils.app_utils import generate_startup_image
 from flask import Flask, request, send_from_directory
 from werkzeug.serving import is_running_from_reloader
@@ -100,7 +101,14 @@ if __name__ == '__main__':
 
     try:
         # Run the Flask app
-        app.secret_key = str(random.randint(100000,999999))
+        secret_file = os.path.join(device_config.config_dir, '.secret')
+        if os.path.exists(secret_file):
+            with open(secret_file, 'r') as f:
+                app.secret_key = f.read().strip()
+        else:
+            app.secret_key = secrets.token_hex(32)
+            with open(secret_file, 'w') as f:
+                f.write(app.secret_key)
 
         # Determine host and port from config
         run_local = device_config.get_config("runlocal", False)
