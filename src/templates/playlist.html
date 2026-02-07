@@ -93,6 +93,42 @@
             color: var(--text-secondary);
             font-size: 14px;
         }
+
+        /* Drag and Drop Styles */
+        .plugin-item.dragging {
+            opacity: 0.5;
+            background-color: var(--bg-secondary);
+            border: 2px dashed var(--accent-primary);
+        }
+
+        .plugin-item.drag-over {
+            border-top: 2px solid var(--accent-primary);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            padding: 8px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .drag-handle:hover {
+            opacity: 1;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .drag-handle svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
     </style>
     <script>
         async function deletePluginInstance(playlistName, pluginId, pluginInstance) {
@@ -316,8 +352,6 @@
             endSelect.innerHTML += `<option value="24:00">24:00</option>`;
         }
 
-        document.addEventListener("DOMContentLoaded", populateTimeOptions);
-
         window.addEventListener("load", function () {
             let storedMessage = sessionStorage.getItem("storedMessage");
             if (storedMessage) {
@@ -379,6 +413,120 @@
                 }
             });
         }
+
+        // Drag and Drop Logic
+        let draggedItem = null;
+        let draggedFromPlaylist = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            draggedFromPlaylist = this.closest('.playlist-item').querySelector('.playlist-title').textContent.trim();
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.id);
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            const playlistItem = this.closest('.playlist-item');
+            const targetPlaylist = playlistItem.querySelector('.playlist-title').textContent.trim();
+            
+            // Only allow dropping within the same playlist for now
+            if (targetPlaylist !== draggedFromPlaylist) {
+                return false;
+            }
+
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        async function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            this.classList.remove('drag-over');
+
+            if (draggedItem !== this) {
+                const playlistItem = this.closest('.playlist-item');
+                const targetPlaylist = playlistItem.querySelector('.playlist-title').textContent.trim();
+                
+                if (targetPlaylist !== draggedFromPlaylist) {
+                    return false;
+                }
+
+                const list = this.parentNode;
+                const nodes = Array.from(list.children);
+                const draggedIdx = nodes.indexOf(draggedItem);
+                const targetIdx = nodes.indexOf(this);
+
+                if (draggedIdx < targetIdx) {
+                    list.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    list.insertBefore(draggedItem, this);
+                }
+
+                await saveNewOrder(targetPlaylist, list);
+            }
+
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            const items = document.querySelectorAll('.plugin-item');
+            items.forEach(item => item.classList.remove('drag-over'));
+        }
+
+        async function saveNewOrder(playlistName, listElement) {
+            const items = Array.from(listElement.querySelectorAll('.plugin-item'));
+            const newOrderIds = items.map(item => item.dataset.id);
+
+            try {
+                const response = await fetch(`/reorder_plugins/${encodeURIComponent(playlistName)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ new_order_ids: newOrderIds })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    showResponseModal('failure', `Error! ${result.error}`);
+                    // Reload to revert UI if failed
+                    setTimeout(() => location.reload(), 2000);
+                }
+            } catch (error) {
+                console.error('Error saving order:', error);
+                showResponseModal('failure', 'An error occurred while saving the new order.');
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+
+        function initDragAndDrop() {
+            const items = document.querySelectorAll('.plugin-item');
+            items.forEach(item => {
+                item.setAttribute('draggable', 'true');
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('dragleave', handleDragLeave);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            populateTimeOptions();
+            initDragAndDrop();
+        });
     </script>
 </head>
 <body>
@@ -408,8 +556,11 @@
                     <!-- Plugin List -->
                     <div class="plugin-list">
                         {% for plugin_instance in playlist.plugins %}
-                        <div class="plugin-item">
+                        <div class="plugin-item" data-id="{{ plugin_instance.plugin_id }}:{{ plugin_instance.name }}">
                             <div class="plugin-info" id="{{plugin_instance.name}}">
+                                <div class="drag-handle" title="Drag to reorder">
+                                    <svg viewBox="0 0 24 24"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </div>
                                 <img src="{{ url_for('plugin.image', plugin_id=plugin_instance.plugin_id, filename='icon.png') }}" alt="Plugin Icon" class="plugin-icon">
                                 <span class="plugin-instance">{{ plugin_instance.name }}</span>
 

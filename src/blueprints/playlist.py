@@ -161,6 +161,31 @@ def delete_playlist(playlist_name):
 
     return jsonify({"success": True, "message": f"Deleted playlist '{playlist_name}'!"})
 
+@playlist_bp.route('/reorder_plugins/<string:playlist_name>', methods=['POST'])
+def reorder_plugins(playlist_name):
+    device_config = current_app.config['DEVICE_CONFIG']
+    playlist_manager = device_config.get_playlist_manager()
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+        
+    new_order_ids = data.get("new_order_ids")
+
+    if not new_order_ids:
+        return jsonify({"error": "New order is required"}), 400
+
+    playlist = playlist_manager.get_playlist(playlist_name)
+    if not playlist:
+        return jsonify({"error": f"Playlist '{playlist_name}' does not exist"}), 400
+
+    result = playlist.reorder_plugins(new_order_ids)
+    if not result:
+        return jsonify({"error": "Failed to reorder plugins. Please ensure all plugins are included."}), 400
+
+    device_config.write_config()
+    return jsonify({"success": True, "message": f"Reordered plugins in '{playlist_name}'!"})
+
 @playlist_bp.app_template_filter('format_relative_time')
 def format_relative_time(iso_date_string):
     # Parse the input ISO date string

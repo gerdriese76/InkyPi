@@ -218,6 +218,20 @@ class Playlist:
             return False
         return True
 
+    def reorder_plugins(self, new_order_ids):
+        """Reorders the plugins in the playlist based on a list of identifiers (plugin_id:instance_name)."""
+        id_to_plugin = {f"{p.plugin_id}:{p.name}": p for p in self.plugins}
+        new_plugins = []
+        for pid in new_order_ids:
+            if pid in id_to_plugin:
+                new_plugins.append(id_to_plugin[pid])
+
+        # Verify if we still have the same number of plugins to avoid data loss
+        if len(new_plugins) == len(self.plugins):
+            self.plugins = new_plugins
+            return True
+        return False
+
     def find_plugin(self, plugin_id, name):
         """Find a plugin instance by its plugin_id and name."""
         return next((p for p in self.plugins if p.plugin_id == plugin_id and p.name == name), None)

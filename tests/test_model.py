@@ -49,4 +49,31 @@ class TestPlaylist:
         playlist = Playlist("Test Playlist", start, end)
         assert playlist.is_active(current) == expected
         assert playlist.get_priority() == priority
+
+    def test_reorder_plugins(self):
+        playlist = Playlist("Test Playlist", "00:00", "24:00", plugins=[
+            {"plugin_id": "p1", "name": "inst1", "plugin_settings": {}, "refresh": {}},
+            {"plugin_id": "p2", "name": "inst2", "plugin_settings": {}, "refresh": {}},
+            {"plugin_id": "p3", "name": "inst3", "plugin_settings": {}, "refresh": {}},
+        ])
+        
+        # Original order: inst1, inst2, inst3
+        assert [p.name for p in playlist.plugins] == ["inst1", "inst2", "inst3"]
+        
+        # New order: inst2, inst1, inst3
+        new_order_ids = ["p2:inst2", "p1:inst1", "p3:inst3"]
+        result = playlist.reorder_plugins(new_order_ids)
+        
+        assert result is True
+        assert [p.name for p in playlist.plugins] == ["inst2", "inst1", "inst3"]
+        
+        # Reorder with missing plugin should fail
+        result = playlist.reorder_plugins(["p2:inst2", "p1:inst1"])
+        assert result is False
+        assert [p.name for p in playlist.plugins] == ["inst2", "inst1", "inst3"]
+
+        # Reorder with non-existent plugin should fail
+        result = playlist.reorder_plugins(["p2:inst2", "p1:inst1", "p4:inst4"])
+        assert result is False
+        assert [p.name for p in playlist.plugins] == ["inst2", "inst1", "inst3"]
         
