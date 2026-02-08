@@ -9,6 +9,32 @@ def main_page():
     device_config = current_app.config['DEVICE_CONFIG']
     return render_template('inky.html', config=device_config.get_config(), plugins=device_config.get_plugins())
 
+@main_bp.route('/view')
+def view_image():
+    """Endpoint to just view the current image."""
+    return render_template('view_image.html')
+
+@main_bp.route('/api/image_status')
+def get_image_status():
+    """Returns the last modification time of the current image."""
+    image_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'images', 'current_image.png')
+    if not os.path.exists(image_path):
+        return jsonify({"last_modified": 0})
+    return jsonify({"last_modified": int(os.path.getmtime(image_path))})
+
+@main_bp.route('/api/image_updates')
+def image_updates():
+    """SSE endpoint for image updates."""
+    display_manager = current_app.config['DISPLAY_MANAGER']
+    def event_stream():
+        while True:
+            # Wait for the update event
+            display_manager.update_event.wait(timeout=30) # Keep-alive every 30s
+            yield "data: refresh\n\n"
+            
+    from flask import Response
+    return Response(event_stream(), mimetype='text/event-stream')
+
 @main_bp.route('/api/current_image')
 def get_current_image():
     """Serve current_image.png with conditional request support (If-Modified-Since)."""

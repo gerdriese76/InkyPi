@@ -132,6 +132,6 @@ if __name__ == '__main__':
             except:
                 pass  # Ignore if we can't get the IP
 
-        serve(app, host=host, port=final_port, threads=1)
+        serve(app, host=host, port=final_port, threads=4)
     finally:
         refresh_task.stop()
