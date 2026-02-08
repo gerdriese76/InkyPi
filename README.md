@@ -17,6 +17,7 @@ This fork includes several enhancements and additional plugins developed to impr
 - **Multi-threaded Server**: Upgraded the web server to handle concurrent connections more efficiently, ensuring the background refresh doesn't block the UI.
 - **Thread-Safe Display Management**: Added internal locking to the display manager to prevent image corruption when multiple processes access the display simultaneously.
 - **Enhanced UI**: Added quick-access icons to the main dashboard for easier navigation to the new full-screen view.
+- **Sortable Playlists**: Playlists can now be reordered via drag-and-drop directly in the web interface.
 - **Secure Secret Handling**: The application now automatically generates and stores a secure, persistent `secret_key` in a `.secret` file, improving session security.
 - **User Management & Authentication**: Integrated a robust user management system (`users.json`) with secure password hashing using `werkzeug.security`.
 - **Advanced Configuration**:
