@@ -1,10 +1,32 @@
-# InkyPi 
+# InkyPi (Fork by gerdriese76)
 
 <img src="./docs/images/inky_clock.jpg" />
 
+> [!IMPORTANT]
+> This is a **fork** of the original [InkyPi](https://github.com/fatihak/InkyPi) project by fatihak. 
 
 ## About InkyPi 
 InkyPi is an open-source, customizable E-Ink display powered by a Raspberry Pi. Designed for simplicity and flexibility, it allows you to effortlessly display the content you care about, with a simple web interface that makes setup and configuration effortless.
+
+## Changes to the Original
+This fork includes several enhancements and additional plugins developed to improve usability and functionality:
+
+### 🌟 Features & Enhancements
+- **Full Screen View**: Added a new `/view` endpoint that provides a dedicated full-screen view of the current display image.
+- **Auto-Refresh Web View**: The web interface now updates automatically in real-time using Server-Sent Events (SSE) whenever the display content changes.
+- **Multi-threaded Server**: Upgraded the web server to handle concurrent connections more efficiently, ensuring the background refresh doesn't block the UI.
+- **Thread-Safe Display Management**: Added internal locking to the display manager to prevent image corruption when multiple processes access the display simultaneously.
+- **Enhanced UI**: Added quick-access icons to the main dashboard for easier navigation to the new full-screen view.
+- **Secure Secret Handling**: The application now automatically generates and stores a secure, persistent `secret_key` in a `.secret` file, improving session security.
+- **User Management & Authentication**: Integrated a robust user management system (`users.json`) with secure password hashing using `werkzeug.security`.
+- **Advanced Configuration**:
+    - Customizable server port and host (via `runlocal` setting).
+    - Improved development mode with dedicated configuration (`device_dev.json`).
+
+### 🔌 New Plugins
+- **Schuljahr Progress**: A visual progress bar showing the current status of the school year.
+- **Ferien (Holidays)**: Display upcoming school holidays and breaks.
+- **Plugin Management**: Improved plugin loading and registry for better stability.
 
 **Features**:
 - Natural paper-like aethetic: crisp, minimalist visuals that are easy on the eyes, with no glare or backlight
@@ -53,7 +75,7 @@ To install InkyPi, follow these steps:
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/fatihak/InkyPi.git
+    git clone https://github.com/gerdriese76/InkyPi.git
     ```
 2. Navigate to the project directory:
     ```bash
