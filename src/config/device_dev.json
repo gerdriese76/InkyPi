@@ -28,7 +28,9 @@
         "unsplash",
         "weather",
         "wpotd",
-        "year_progress"
+        "year_progress",
+        "schuljahr",
+        "ferien"
     ],
     "playlist_config": {
         "playlists": [

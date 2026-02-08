@@ -1,0 +1,18 @@
+{% extends "plugin.html" %}
+
+{% block content %}
+<div class="holidays-container">
+    {% if holidays %}
+        {% for holiday in holidays %}
+        <div class="holiday-row-display">
+            <div class="holiday-name">{{ holiday.name }}</div>
+            <div class="holiday-days">
+                {{ holiday.days_left }}<span class="unit">Tage</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-message">Keine anstehenden Ferien</div>
+    {% endif %}
+</div>
+{% endblock %}

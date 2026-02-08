@@ -1,0 +1,110 @@
+<style>
+    .holiday-row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        margin-bottom: 10px;
+        background: rgba(255,255,255,0.05);
+        padding: 10px;
+        border-radius: 4px;
+    }
+    .holiday-col {
+        flex: 1;
+    }
+    .remove-btn {
+        height: 38px; /* Match input height approx */
+        margin-bottom: 2px;
+    }
+</style>
+
+<div id="holidays-container">
+    <!-- Dynamic rows -->
+</div>
+
+<div class="form-group">
+    <button type="button" id="add-holiday-btn" class="form-btn"> Ferien hinzufügen</button>
+</div>
+
+<script>
+    function createHolidayRow(name = '', date = '') {
+        const row = document.createElement('div');
+        row.className = 'holiday-row';
+
+        // Name Input
+        const nameCol = document.createElement('div');
+        nameCol.className = 'holiday-col';
+        const nameLabel = document.createElement('label');
+        nameLabel.className = 'form-label';
+        nameLabel.textContent = 'Name:';
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.name = 'holidayName[]';
+        nameInput.className = 'form-input';
+        nameInput.value = name;
+        nameInput.placeholder = 'Sommerferien';
+        nameInput.required = true;
+        nameCol.appendChild(nameLabel);
+        nameCol.appendChild(nameInput);
+
+        // Date Input
+        const dateCol = document.createElement('div');
+        dateCol.className = 'holiday-col';
+        const dateLabel = document.createElement('label');
+        dateLabel.className = 'form-label';
+        dateLabel.textContent = 'Startdatum:';
+        const dateInput = document.createElement('input');
+        dateInput.type = 'date';
+        dateInput.name = 'holidayDate[]';
+        dateInput.className = 'form-input';
+        dateInput.value = date;
+        dateInput.required = true;
+        dateCol.appendChild(dateLabel);
+        dateCol.appendChild(dateInput);
+
+        // Remove Button
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'form-btn remove-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.title = 'Entfernen';
+        removeBtn.onclick = function() {
+            row.remove();
+        };
+
+        row.appendChild(nameCol);
+        row.appendChild(dateCol);
+        row.appendChild(removeBtn);
+
+        return row;
+    }
+
+    document.getElementById('add-holiday-btn').addEventListener('click', () => {
+        document.getElementById('holidays-container').appendChild(createHolidayRow());
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {        
+        if (loadPluginSettings) {
+            const names = pluginSettings['holidayName[]'];
+            const dates = pluginSettings['holidayDate[]'];
+            
+            // Normalize to arrays
+            const nameList = Array.isArray(names) ? names : (names ? [names] : []);
+            const dateList = Array.isArray(dates) ? dates : (dates ? [dates] : []);
+            
+            const count = Math.max(nameList.length, dateList.length);
+            
+            if (count > 0) {
+                for (let i = 0; i < count; i++) {
+                    const n = nameList[i] || '';
+                    const d = dateList[i] || '';
+                    document.getElementById('holidays-container').appendChild(createHolidayRow(n, d));
+                }
+            } else {
+                // Add one empty row if no settings
+                document.getElementById('holidays-container').appendChild(createHolidayRow());
+            }
+        } else {
+            document.getElementById('holidays-container').appendChild(createHolidayRow());
+        }
+    });
+</script>

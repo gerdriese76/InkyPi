@@ -1,0 +1,50 @@
+.holidays-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    gap: 15px;
+    font-family: "Jost";
+}
+
+.holiday-row-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 2px solid currentColor;
+    padding-bottom: 5px;
+}
+
+.holiday-name {
+    font-size: min(8dvh, 6vw);
+    font-weight: bold;
+    flex: 2;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 20px;
+}
+
+.holiday-days {
+    font-size: min(8dvh, 6vw);
+    flex: 0 0 auto;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.unit {
+    font-size: 0.6em;
+    margin-left: 5px;
+}
+
+.empty-message {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: min(10dvh, 8vw);
+    text-align: center;
+}
