@@ -40,6 +40,7 @@ This fork includes several enhancements and additional plugins developed to impr
 **Plugins**:
 
 - Image Upload: Upload and display any image from your browser
+- Network Info: Display network status, including SSID, signal strength, IP address, and ping times
 - Daily Newspaper/Comic: Show daily comics and front pages of major newspapers from around the world
 - Clock: Customizable clock faces for displaying time
 - AI Image/Text: Generate images and dynamic text from prompts using OpenAI's models

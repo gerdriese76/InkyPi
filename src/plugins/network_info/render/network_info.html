@@ -21,7 +21,7 @@
             <div class="value">{{ current_time }}</div>
 
             <div class="label">SSID:</div>
-            <div class="value">{{ ssid }}</div>
+            <div class="value">{{ ssid }}{% if signal %} ({{ signal }}){% endif %}</div>
 
             <div class="label">IP Address:</div>
             <div class="value">{{ ip_address }}</div>

@@ -28,6 +28,7 @@ class NetworkInfo(BasePlugin):
         # Gather Data
         data = {
             "ssid": self.get_ssid(),
+            "signal": self.get_signal_strength(),
             "ip_address": self.get_ip_address(),
             "gateway": self.get_default_gateway(),
             "current_time": now.strftime("%H:%M:%S"),
@@ -55,6 +56,25 @@ class NetworkInfo(BasePlugin):
         except Exception as e:
             logger.error(f"Failed to get SSID: {e}")
         return "Unknown"
+
+    def get_signal_strength(self):
+        try:
+            # Try nmcli first
+            result = subprocess.run(["nmcli", "-t", "-f", "active,signal", "dev", "wifi"], capture_output=True, text=True)
+            if result.returncode == 0:
+                for line in result.stdout.splitlines():
+                    if line.startswith("yes:"):
+                        return f"{line.split(':', 1)[1]}%"
+            
+            # Fallback for iwconfig (parsing Signal level)
+            result = subprocess.run(["iwconfig"], capture_output=True, text=True, stderr=subprocess.DEVNULL)
+            if result.returncode == 0:
+                match = re.search(r"Signal level=(-?\d+) dBm", result.stdout)
+                if match:
+                    return f"{match.group(1)} dBm"
+        except Exception as e:
+            logger.debug(f"Failed to get Signal Strength: {e}")
+        return ""
 
     def get_ip_address(self):
         try:
