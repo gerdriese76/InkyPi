@@ -163,7 +163,7 @@ Check out the [troubleshooting guide](./docs/troubleshooting.md). If you're stil
 
 If you're using a Pi Zero W, note that there are known issues during the installation process. See [Known Issues during Pi Zero W Installation](./docs/troubleshooting.md#known-issues-during-pi-zero-w-installation) section in the troubleshooting guide for additional details..
 
-## Sponsoring
+## Sponsoring (these are the original sponsoring links for fatihak)
 
 InkyPi is maintained and developed with the help of sponsors. If you enjoy the project or find it useful, consider supporting its continued development.
 
